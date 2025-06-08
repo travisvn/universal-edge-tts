@@ -50,7 +50,13 @@ jobs:
           git commit -m "🔖 Release ${{ github.event.inputs.version }}"
           git push
 
-      - name: Create Release
+      - name: Create tag
+        run: |
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+          echo "Created and pushed tag ${{ github.event.inputs.version }}"
+
+      - name: Create Release (optional)
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,3 +83,9 @@ jobs:
             For complete documentation, see the [main package](https://github.com/travisvn/edge-tts-universal).
           draft: false
           prerelease: false
+
+      - name: Log success
+        run: |
+          echo "✅ Created tag ${{ github.event.inputs.version }}"
+          echo "✅ Created release ${{ github.event.inputs.version }}"
+          echo "📦 Tag push will trigger automatic npm publish"

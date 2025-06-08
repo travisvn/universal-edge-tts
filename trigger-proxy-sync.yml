@@ -44,7 +44,8 @@ jobs:
               "version": "${{ steps.version.outputs.version }}",
               "main_version": "${{ steps.version.outputs.version }}",
               "triggered_by": "${{ github.repository }}",
-              "trigger_event": "${{ github.event_name }}"
+              "trigger_event": "${{ github.event_name }}",
+              "trigger_type": "auto_sync"
             }
 
       - name: Log trigger

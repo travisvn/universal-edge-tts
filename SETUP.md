@@ -42,21 +42,22 @@ edge-tts-universal/.github/workflows/sync-proxy-package.yml
 
 #### Automatic Test
 
-1. Create a new release in `edge-tts-universal`
-2. The proxy repo should automatically sync and create a matching release
+1. Create a new tag/release in `edge-tts-universal`
+2. The proxy repo should automatically sync, create a matching tag, and publish to npm
 
 ## 🔄 How It Works
 
 ```mermaid
 graph LR
-    A[Create Release in edge-tts-universal] --> B[Trigger sync workflow]
+    A[Create Tag/Release in edge-tts-universal] --> B[Trigger sync workflow]
     B --> C[Send repository_dispatch to universal-edge-tts]
     C --> D[Update dependency version]
     D --> E[Update package version]
     E --> F[Run tests]
     F --> G[Commit changes]
-    G --> H[Create matching release]
-    H --> I[Auto-publish to npm]
+    G --> H[Create matching tag]
+    H --> I[Tag triggers npm publish]
+    I --> J[Optional: Create GitHub release]
 ```
 
 ## 📋 Version Strategy
@@ -68,10 +69,12 @@ graph LR
 
 ### Example Flow:
 
-1. Release `edge-tts-universal` with tag `1.2.3` (no 'v' prefix)
+1. Create tag `1.2.3` in `edge-tts-universal` (via release or direct tag push)
 2. Automatically triggers sync to `universal-edge-tts@1.2.3`
 3. Updates dependency to `"edge-tts-universal": "^1.2.3"`
-4. Creates release with tag `1.2.3` and publishes to npm
+4. Creates tag `1.2.3` in proxy repo
+5. Tag creation automatically publishes to npm
+6. Optionally creates GitHub release for documentation
 
 ## 🛠️ Manual Sync (if needed)
 
