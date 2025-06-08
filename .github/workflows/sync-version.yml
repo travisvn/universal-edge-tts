@@ -1,0 +1,129 @@
+name: Sync Version from Main Repo
+
+on:
+  repository_dispatch:
+    types: [sync-version]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to sync (e.g., 1.2.3)'
+        required: true
+        type: string
+      main_repo_version:
+        description: 'Main repo version (for dependency update)'
+        required: true
+        type: string
+
+jobs:
+  sync-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Extract version from dispatch or input
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            VERSION="${{ github.event.client_payload.version }}"
+            MAIN_VERSION="${{ github.event.client_payload.main_version }}"
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            MAIN_VERSION="${{ github.event.inputs.main_repo_version }}"
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "main_version=$MAIN_VERSION" >> $GITHUB_OUTPUT
+          echo "Will sync to version: $VERSION"
+          echo "Main repo version: $MAIN_VERSION"
+
+      - name: Validate version format
+        run: |
+          if [[ ! "${{ steps.version.outputs.version }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "❌ Version must be in format x.y.z (e.g., 1.0.1)"
+            exit 1
+          fi
+          echo "✅ Version format is valid"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update dependency version and package version
+        run: |
+          # Update the dependency to the main repo version
+          npm install edge-tts-universal@^${{ steps.version.outputs.main_version }} --save
+
+          # Update this package's version to match
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
+          echo "Updated edge-tts-universal dependency to ^${{ steps.version.outputs.main_version }}"
+          echo "Updated package version to ${{ steps.version.outputs.version }}"
+
+      - name: Run tests
+        run: npm test
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action (Version Sync)"
+          git add package.json package-lock.json
+          git commit -m "🔄 Sync version to v${{ steps.version.outputs.version }}" || echo "No changes to commit"
+          git push || echo "No changes to push"
+
+      - name: Check if release already exists
+        id: check_release
+        run: |
+          if git tag | grep -q "^v${{ steps.version.outputs.version }}$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.version.outputs.version }} does not exist"
+          fi
+
+      - name: Create Release
+        if: steps.check_release.outputs.exists == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          release_name: v${{ steps.version.outputs.version }}
+          body: |
+            ## 🔄 Auto-synced from edge-tts-universal v${{ steps.version.outputs.main_version }}
+
+            This release automatically syncs with [`edge-tts-universal@${{ steps.version.outputs.main_version }}`](https://github.com/travisvn/edge-tts-universal/releases/tag/v${{ steps.version.outputs.main_version }}).
+
+            ### Installation
+            ```bash
+            npm install universal-edge-tts@${{ steps.version.outputs.version }}
+            ```
+
+            ### Usage
+            ```javascript
+            import { EdgeTTS } from 'universal-edge-tts';
+            // or
+            const { EdgeTTS } = require('universal-edge-tts');
+            ```
+
+            For complete documentation and changelog, see the [main package](https://github.com/travisvn/edge-tts-universal).
+          draft: false
+          prerelease: false
+
+      - name: Log success
+        run: |
+          echo "✅ Successfully synced universal-edge-tts to version ${{ steps.version.outputs.version }}"
+          echo "✅ Updated edge-tts-universal dependency to ^${{ steps.version.outputs.main_version }}"
+          if [ "${{ steps.check_release.outputs.exists }}" = "false" ]; then
+            echo "✅ Created new release v${{ steps.version.outputs.version }}"
+          else
+            echo "ℹ️ Release already existed, skipped creation"
+          fi
