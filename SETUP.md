@@ -64,13 +64,14 @@ graph LR
 - **Main package** (`edge-tts-universal`): Controls the version numbers
 - **Proxy package** (`universal-edge-tts`): Mirrors the main package version
 - **Dependency**: Proxy package depends on `^{main_version}` of the main package
+- **Tag format**: Uses semantic versioning without 'v' prefix (e.g., `1.2.3` not `v1.2.3`)
 
 ### Example Flow:
 
-1. Release `edge-tts-universal@1.2.3`
+1. Release `edge-tts-universal` with tag `1.2.3` (no 'v' prefix)
 2. Automatically triggers sync to `universal-edge-tts@1.2.3`
 3. Updates dependency to `"edge-tts-universal": "^1.2.3"`
-4. Creates release and publishes to npm
+4. Creates release with tag `1.2.3` and publishes to npm
 
 ## 🛠️ Manual Sync (if needed)
 
@@ -89,4 +90,5 @@ If automatic sync fails, you can manually trigger it:
 1. **Token expired**: Regenerate and update the `PROXY_REPO_TOKEN` secret
 2. **Permission denied**: Ensure token has `repo` and `workflow` scopes
 3. **Wrong repository name**: Verify the repository name in the workflow file
-4. **Version format**: Ensure versions follow semantic versioning (x.y.z)
+4. **Version format**: Ensure versions follow semantic versioning (x.y.z) without 'v' prefix
+5. **Tag mismatch**: Both repos should use the same tag format (no 'v' prefix)

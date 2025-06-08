@@ -45,8 +45,8 @@ jobs:
 
       - name: Update version from release tag
         run: |
-          # Extract version from release tag (e.g., v1.2.3 -> 1.2.3)
-          VERSION=${GITHUB_REF#refs/tags/v}
+          # Extract version from release tag (e.g., 1.2.3)
+          VERSION=${GITHUB_REF#refs/tags/}
           echo "Setting version to: $VERSION"
           npm version $VERSION --no-git-tag-version
 
