@@ -1,0 +1,50 @@
+{
+  "name": "universal-edge-tts",
+  "version": "1.0.0",
+  "description": "Alias package for edge-tts-universal - Universal text-to-speech library",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "browser": {
+    "./index.js": "./browser.js",
+    "./index.d.ts": "./browser.d.ts"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./browser": {
+      "import": "./browser.js",
+      "require": "./browser.js",
+      "types": "./browser.d.ts"
+    },
+    "./isomorphic": {
+      "import": "./isomorphic.js",
+      "require": "./isomorphic.js",
+      "types": "./isomorphic.d.ts"
+    },
+    "./webworker": {
+      "import": "./webworker.js",
+      "require": "./webworker.js",
+      "types": "./webworker.d.ts"
+    }
+  },
+  "dependencies": {
+    "edge-tts-universal": "latest"
+  },
+  "keywords": [
+    "text-to-speech",
+    "tts",
+    "edge-tts",
+    "universal",
+    "alias"
+  ],
+  "author": "Travis <contact@travis.engineer>",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/travisvn/universal-edge-tts.git"
+  }
+}
