@@ -31,6 +31,18 @@
       "types": "./webworker.d.ts"
     }
   },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "browser.js",
+    "browser.d.ts",
+    "isomorphic.js",
+    "isomorphic.d.ts",
+    "webworker.js",
+    "webworker.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "edge-tts-universal": "latest"
   },
@@ -39,12 +51,18 @@
     "tts",
     "edge-tts",
     "universal",
-    "alias"
+    "alias",
+    "microsoft",
+    "speech-synthesis"
   ],
   "author": "Travis <contact@travis.engineer>",
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/travisvn/universal-edge-tts.git"
+  },
+  "homepage": "https://github.com/travisvn/universal-edge-tts#readme",
+  "bugs": {
+    "url": "https://github.com/travisvn/universal-edge-tts/issues"
   }
 }

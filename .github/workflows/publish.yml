@@ -1,0 +1,62 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify package structure
+        run: |
+          echo "Checking that all required files exist..."
+          test -f index.js || (echo "index.js missing" && exit 1)
+          test -f index.d.ts || (echo "index.d.ts missing" && exit 1)
+          test -f browser.js || (echo "browser.js missing" && exit 1)
+          test -f browser.d.ts || (echo "browser.d.ts missing" && exit 1)
+          test -f isomorphic.js || (echo "isomorphic.js missing" && exit 1)
+          test -f isomorphic.d.ts || (echo "isomorphic.d.ts missing" && exit 1)
+          test -f webworker.js || (echo "webworker.js missing" && exit 1)
+          test -f webworker.d.ts || (echo "webworker.d.ts missing" && exit 1)
+          echo "All files present ✓"
+
+      - name: Test package exports
+        run: |
+          echo "Testing Node.js require..."
+          node -e "const pkg = require('./index.js'); console.log('Main export works ✓');"
+          node -e "const browser = require('./browser.js'); console.log('Browser export works ✓');"
+          node -e "const isomorphic = require('./isomorphic.js'); console.log('Isomorphic export works ✓');"
+          node -e "const webworker = require('./webworker.js'); console.log('Webworker export works ✓');"
+
+      - name: Update version from release tag
+        run: |
+          # Extract version from release tag (e.g., v1.2.3 -> 1.2.3)
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Setting version to: $VERSION"
+          npm version $VERSION --no-git-tag-version
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create success comment
+        if: success()
+        run: |
+          echo "Package successfully published to NPM! 🎉"
+          echo "Version: $(node -p "require('./package.json').version")"
