@@ -16,6 +16,32 @@ npm install universal-edge-tts
 // These are equivalent:
 import { EdgeTTS } from 'universal-edge-tts';
 import { EdgeTTS } from 'edge-tts-universal';
+
+// CommonJS
+const { EdgeTTS } = require('universal-edge-tts');
 ```
 
-For complete documentation, see the [main package](https://github.com/travisvn/edge-tts-universal).
+### Environment-specific imports
+
+```javascript
+// For browser environments
+import { EdgeTTS } from 'universal-edge-tts/browser';
+
+// For isomorphic usage (Node.js + Browser)
+import { EdgeTTS } from 'universal-edge-tts/isomorphic';
+
+// For web workers
+import { EdgeTTS } from 'universal-edge-tts/webworker';
+```
+
+## Documentation
+
+For complete documentation, API reference, and examples, see the [main package](https://github.com/travisvn/edge-tts-universal).
+
+## Contributing
+
+This is a proxy package that re-exports functionality from `edge-tts-universal`. All development should happen in the [main repository](https://github.com/travisvn/edge-tts-universal).
+
+## License
+
+AGPL-3.0 - see [LICENSE](LICENSE) file for details.
