@@ -61,11 +61,15 @@ jobs:
           # Update the dependency to the main repo version
           npm install edge-tts-universal@^${{ steps.version.outputs.main_version }} --save
 
-          # Update this package's version to match
-          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-
-          echo "Updated edge-tts-universal dependency to ^${{ steps.version.outputs.main_version }}"
-          echo "Updated package version to ${{ steps.version.outputs.version }}"
+          # Check if the package.json version matches the desired version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" = "${{ steps.version.outputs.version }}" ]; then
+            echo "Version is already $CURRENT_VERSION. Skipping npm version."
+          else
+            # Update this package's version to match
+            npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+            echo "Updated package version to ${{ steps.version.outputs.version }}"
+          fi
 
       - name: Run tests
         run: npm test
